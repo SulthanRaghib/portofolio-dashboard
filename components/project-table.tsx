@@ -2,6 +2,7 @@
 
 import { Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -134,19 +135,26 @@ export function ProjectTable({
                   {new Date(project.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="text-right space-x-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => onEdit(project)}
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
+                  <Tooltip content="Edit">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onEdit(project)}
+                      aria-label={`Edit ${project.title}`}
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                  </Tooltip>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setDeleteId(project.id)}
                   >
-                    <Trash2 className="w-4 h-4 text-destructive" />
+                    <Tooltip content="Delete">
+                      <span>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </span>
+                    </Tooltip>
                   </Button>
                 </TableCell>
               </TableRow>
