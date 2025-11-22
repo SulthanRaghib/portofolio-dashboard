@@ -26,12 +26,11 @@ jobs:
           node-version: 20
           cache: "npm"
 
-      - name: Install dependencies
+      - name: Install dependencies (npm ci)
         run: npm ci
 
-      # FIX: Menggunakan eslint langsung untuk menghindari crash pada Next.js v16 CLI
       - name: Run ESLint
-        run: npx eslint .
+        run: npm run lint
 
       - name: Type check (TypeScript)
         run: npm run type-check --if-present
