@@ -409,6 +409,7 @@ export const api = {
         throw new Error(errorMessage);
       }
       return res.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Update error details:", {
         name: error.name,

@@ -45,6 +45,7 @@ export function CertificatePreview({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pageDimensions, setPageDimensions] = useState<{
     width: number;
     height: number;
