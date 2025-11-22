@@ -157,6 +157,7 @@ export function ProjectForm({
       setTechInput("");
       onOpenChange(false);
       onSuccess();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // Handle backend validation errors
       let errorMessage = "Something went wrong";
@@ -180,7 +181,7 @@ export function ProjectForm({
         } else if (error instanceof Error) {
           errorMessage = error.message;
         }
-      } catch (e) {
+      } catch {
         // Keep default error message
       }
 

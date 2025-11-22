@@ -112,7 +112,7 @@ export default function ProjectsPage() {
             {query ? (
               <>
                 Found {projects.length} project
-                {projects.length !== 1 ? "s" : ""} matching "{query}"
+                {projects.length !== 1 ? "s" : ""} matching &quot;{query}&quot;
               </>
             ) : (
               <>

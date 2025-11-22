@@ -5,7 +5,9 @@ import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geist = Geist({ subsets: ["latin"] });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

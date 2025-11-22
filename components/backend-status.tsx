@@ -21,7 +21,7 @@ export function BackendStatus() {
     try {
       const isHealthy = await api.checkHealth();
       setStatus(isHealthy ? "online" : "offline");
-    } catch (error) {
+    } catch {
       setStatus("offline");
     }
   };

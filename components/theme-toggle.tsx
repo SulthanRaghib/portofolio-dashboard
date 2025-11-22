@@ -22,6 +22,7 @@ export function ThemeToggle() {
         useTheme.setState({ isDark: prefersDark });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

@@ -236,6 +236,7 @@ export function CertificationForm({
 
       setUploadProgress("");
       onSuccess();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Failed to save certification:", error);
       toast({

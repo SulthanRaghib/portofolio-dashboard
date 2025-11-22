@@ -100,6 +100,7 @@ export function CertificatePreview({
   }, []);
 
   const onPageLoadSuccess = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (page: any) => {
       const { width, height } = page;
       setPageDimensions({ width, height });
@@ -137,11 +138,7 @@ export function CertificatePreview({
     );
   }
 
-  // Get aspect ratio for parent container sizing
-  const getAspectRatio = () => {
-    if (!pageDimensions) return null;
-    return pageDimensions.width / pageDimensions.height;
-  }; // Render PDF viewer
+  // Render PDF viewer
   return (
     <div className={`${className} flex flex-col items-center gap-4`}>
       {/* PDF Controls */}

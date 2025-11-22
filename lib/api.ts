@@ -35,6 +35,7 @@ const fetchWithTimeout = async (
     });
     clearTimeout(id);
     return response;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     clearTimeout(id);
 
@@ -119,12 +120,14 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const errorText = await res.text();
       throw new Error(`Failed to fetch projects: ${res.status}`);
     }
     return res.json();
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createProject(data: FormData | any, token: string) {
     const isFormData = data instanceof FormData;
     const headers: HeadersInit = {
@@ -142,12 +145,14 @@ export const api = {
       body: isFormData ? data : JSON.stringify(data),
     });
     if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const errorText = await res.text();
       throw new Error(`Failed to create project: ${res.status}`);
     }
     return res.json();
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async updateProject(id: string, data: FormData | any, token: string) {
     const isFormData = data instanceof FormData;
     const headers: HeadersInit = {
@@ -168,6 +173,7 @@ export const api = {
       }
     );
     if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const errorText = await res.text();
       throw new Error(`Failed to update project: ${res.status}`);
     }
@@ -219,12 +225,14 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const errorText = await res.text();
       throw new Error(`Failed to fetch certifications: ${res.status}`);
     }
     return res.json();
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createCertification(data: FormData | any, token: string) {
     const isFormData = data instanceof FormData;
     const url = `${API_BASE}${API_CONFIG.ENDPOINTS.CERTIFICATIONS}`;
@@ -290,13 +298,14 @@ export const api = {
             const errorText = await res.text();
             if (errorText) errorMessage = errorText;
             console.error("Backend error text:", errorText);
-          } catch (e) {
+          } catch {
             console.error("Could not read error response");
           }
         }
         throw new Error(errorMessage);
       }
       return res.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("❌ Request error details:", {
         name: error.name,
@@ -344,6 +353,7 @@ export const api = {
     }
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async updateCertification(id: string, data: FormData | any, token: string) {
     const isFormData = data instanceof FormData;
     const headers: HeadersInit = {
@@ -392,7 +402,7 @@ export const api = {
             const errorText = await res.text();
             if (errorText) errorMessage = errorText;
             console.error("Backend error text:", errorText);
-          } catch (e) {
+          } catch {
             console.error("Could not read error response");
           }
         }

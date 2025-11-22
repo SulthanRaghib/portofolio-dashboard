@@ -75,6 +75,7 @@ export default function CertificationsPage() {
 
   useEffect(() => {
     fetchCertifications(query);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, query]);
 
   const handleAddCertification = () => {
