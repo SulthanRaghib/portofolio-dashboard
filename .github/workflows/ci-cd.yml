@@ -52,8 +52,15 @@ jobs:
       - name: Install dependencies (npm ci)
         run: npm ci
 
+      - name: Debug workspace
+        run: |
+          echo "PWD: $PWD"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          ls -la
+
       - name: Run ESLint
-        run: ./node_modules/.bin/next lint .
+        run: |
+          node ./node_modules/next/dist/bin/next lint --dir .
 
       - name: Type check (TypeScript)
         # Assumes you have a script like "type-check": "tsc --noEmit"
