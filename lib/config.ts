@@ -5,12 +5,15 @@
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "https://portofolio-backend-beta.vercel.app",
+  BASE_URL:
+    process.env.NEXT_PUBLIC_API_URL ||
+    "https://portofolio-backend-beta.vercel.app",
   ENDPOINTS: {
     AUTH: {
       LOGIN: "/api/auth/login",
     },
     PROJECTS: "/api/projects",
+    CERTIFICATIONS: "/api/certifications",
     HEALTH: "/api/health",
   },
 } as const;
