@@ -55,7 +55,9 @@ jobs:
       - name: Run ESLint
         env:
           NODE_ENV: development
-        run: npx next lint
+        run: |
+          cd $GITHUB_WORKSPACE
+          npx next lint $GITHUB_WORKSPACE
 
       - name: Type check (TypeScript)
         # Assumes you have a script like "type-check": "tsc --noEmit"
