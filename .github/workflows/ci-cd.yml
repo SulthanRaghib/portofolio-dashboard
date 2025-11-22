@@ -16,6 +16,8 @@ jobs:
   lint-build-test:
     name: Lint / Type-check / Test
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: development
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
