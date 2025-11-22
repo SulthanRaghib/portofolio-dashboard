@@ -1,0 +1,177 @@
+# .github/workflows/ci-cd.yml
+# CI/CD pipeline for portofolio-dashboard (Next.js)
+# - lint / type-check / test job
+# - preview deploy for PRs and non-master branches
+# - production deploy for master branch
+# Uses Vercel CLI via npx and GitHub Secrets for tokens & project config
+
+name: CI / CD (Vercel)
+
+on:
+  push:
+    # Run on all pushes (deploy jobs will be gated to branches)
+    branches: ["**"]
+  pull_request:
+    # Run on pull requests targeting any branch
+    types: [opened, synchronize, reopened]
+
+env:
+  # Default environment variables passed to all jobs (override in job env if needed)
+  NODE_ENV: production
+  NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || '' }}
+
+jobs:
+  # 1) Lint, type-check, test (required before any deployment)
+  lint-build-test:
+    name: Lint / Type-check / Test
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      # Cache npm registry (~/.npm) to speed up installs
+      - name: Cache npm (optional additional)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: Run ESLint
+        # This will fail the job (and thus block deploy) if lint errors exist
+        run: npm run lint --if-present
+
+      - name: Type check (TypeScript)
+        # Assumes you have a script like "type-check": "tsc --noEmit"
+        run: npm run type-check --if-present
+
+      - name: Run tests
+        # --if-present prevents failure when there is no test script
+        run: npm run test --if-present
+
+  # 2) Deploy preview for PRs and non-master branches
+  deploy-preview:
+    name: Deploy Preview to Vercel
+    needs: lint-build-test
+    runs-on: ubuntu-latest
+    # Only run for pull requests OR pushes that are not to master
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/master') }}
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || '' }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Cache npm & node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: preview-${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            preview-${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (Vercel prebuild)
+        # Run a local build so vercel deploy --prebuilt can reuse artifacts
+        run: npx vercel build --token $VERCEL_TOKEN --confirm --local-config=./vercel.json || true
+        # Note: we use || true because some projects rely on vercel to detect builds; adjust as needed.
+
+      - name: Deploy preview to Vercel
+        id: vercel_preview
+        run: |
+          # Deploy preview; capture output to extract deployment URL.
+          set -o pipefail
+          DEPLOY_OUT=$(npx vercel deploy --prebuilt --token "$VERCEL_TOKEN" --confirm --project "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID" 2>&1)
+          echo "$DEPLOY_OUT"
+          # Try to extract a URL from the output (last https://... line)
+          PREVIEW_URL=$(echo "$DEPLOY_OUT" | grep -Eo 'https?://[^ ]+' | tail -n1 || true)
+          echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Comment PR with preview link (optional)
+        if: ${{ github.event_name == 'pull_request' && steps.vercel_preview.outputs.preview_url }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const url = `${{ steps.vercel_preview.outputs.preview_url }}`;
+            const pr = context.payload.pull_request.number;
+            const body = `Preview deployment: ${url}\n\n(Deployed by GitHub Actions)`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr,
+              body,
+            });
+
+  # 3) Deploy production when pushing to master
+  deploy-production:
+    name: Deploy Production to Vercel
+    needs: lint-build-test
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || '' }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Cache npm & node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: prod-${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            prod-${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (production)
+        run: npx vercel build --prod --token $VERCEL_TOKEN --confirm --project "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID"
+
+      - name: Deploy to Vercel (production)
+        run: |
+          # Deploy the previously built project to production
+          npx vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN" --confirm --project "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID"
