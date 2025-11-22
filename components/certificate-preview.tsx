@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import { Document, Page, pdfjs } from "react-pdf";
 import {
   FileText,
@@ -130,12 +131,15 @@ export function CertificatePreview({
     }
 
     return (
-      <img
-        src={url}
-        alt={alt}
-        className={`${className} object-contain rounded-lg`}
-        onError={() => setImageError(true)}
-      />
+      <div className={`${className} relative min-h-[200px]`}>
+        <Image
+          src={url}
+          alt={alt}
+          fill
+          className="object-contain rounded-lg"
+          onError={() => setImageError(true)}
+        />
+      </div>
     );
   }
 
@@ -222,12 +226,15 @@ export function CertificatePreview({
                 <p className="text-xs text-muted-foreground mb-2">
                   Showing thumbnail instead:
                 </p>
-                <img
-                  src={thumbnail}
-                  alt={alt}
-                  className="max-w-sm rounded-lg border"
-                  onError={() => setImageError(true)}
-                />
+                <div className="relative max-w-sm h-[200px] rounded-lg border overflow-hidden">
+                  <Image
+                    src={thumbnail}
+                    alt={alt}
+                    fill
+                    className="object-contain"
+                    onError={() => setImageError(true)}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -348,12 +355,15 @@ export function CertificateThumbnail({
   }
 
   return (
-    <img
-      src={thumbnail || url}
-      alt={alt}
-      className={`${className} object-cover rounded cursor-pointer hover:opacity-80 transition-opacity`}
-      onClick={onClick}
-      onError={() => setImageError(true)}
-    />
+    <div className={`${className} relative w-full h-full min-h-[150px]`}>
+      <Image
+        src={thumbnail || url}
+        alt={alt}
+        fill
+        className="object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+        onClick={onClick}
+        onError={() => setImageError(true)}
+      />
+    </div>
   );
 }

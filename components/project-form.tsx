@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -223,10 +224,11 @@ export function ProjectForm({
             <label className="text-sm font-medium">Project Image</label>
             {imagePreview && (
               <div className="relative w-full h-48 border rounded-md overflow-hidden">
-                <img
+                <Image
                   src={imagePreview}
                   alt="Preview"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
                 <button
                   type="button"
