@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BackendStatus } from "@/components/backend-status";
 import { clearToken } from "@/lib/auth";
 import { useAuth } from "@/store/useAuth";
 import { useSearch } from "@/store/useSearch";
@@ -91,6 +92,7 @@ export function Navbar() {
 
         {/* Right section */}
         <div className="flex items-center gap-4 ml-auto">
+          <BackendStatus />
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
