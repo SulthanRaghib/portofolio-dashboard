@@ -13,10 +13,17 @@ interface Project {
   updatedAt?: string;
 }
 
+interface Certification {
+  id: string;
+  title: string;
+  createdAt: string;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState({
-    total: 0,
-    featured: 0,
+    totalProjects: 0,
+    featuredProjects: 0,
+    totalCertifications: 0,
     lastUpdated: "–",
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -27,12 +34,20 @@ export default function DashboardPage() {
       if (!token) return;
 
       try {
-        const response = await api.getProjects(token);
-        const projects: Project[] = response.data || response.projects || [];
+        const [projectsResponse, certificationsResponse] = await Promise.all([
+          api.getProjects(token),
+          api.getCertifications(token),
+        ]);
+
+        const projects: Project[] =
+          projectsResponse.data || projectsResponse.projects || [];
+        const certifications: Certification[] =
+          certificationsResponse.data || [];
 
         // Calculate statistics
-        const total = projects.length;
-        const featured = projects.filter((p) => p.featured).length;
+        const totalProjects = projects.length;
+        const featuredProjects = projects.filter((p) => p.featured).length;
+        const totalCertifications = certifications.length;
 
         // Get last updated date
         let lastUpdated = "–";
@@ -49,7 +64,12 @@ export default function DashboardPage() {
           });
         }
 
-        setStats({ total, featured, lastUpdated });
+        setStats({
+          totalProjects,
+          featuredProjects,
+          totalCertifications,
+          lastUpdated,
+        });
       } catch (error) {
         console.error("Failed to fetch stats:", error);
       } finally {
@@ -71,7 +91,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
@@ -80,7 +100,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : stats.total}
+              {isLoading ? "..." : stats.totalProjects}
             </div>
             <p className="text-xs text-muted-foreground">Portfolio projects</p>
           </CardContent>
@@ -92,9 +112,25 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "..." : stats.featured}
+              {isLoading ? "..." : stats.featuredProjects}
             </div>
             <p className="text-xs text-muted-foreground">Featured projects</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              Certifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoading ? "..." : stats.totalCertifications}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Total certifications
+            </p>
           </CardContent>
         </Card>
 
