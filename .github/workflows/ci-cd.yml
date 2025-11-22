@@ -53,8 +53,10 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        # This will fail the job (and thus block deploy) if lint errors exist
-        run: npm run lint --if-present
+        # Run ESLint directly with Next's CLI against the repo root to avoid
+        # accidental positional args being interpreted as a project directory.
+        # This will fail the job (and thus block deploy) if lint errors exist.
+        run: npx next lint .
 
       - name: Type check (TypeScript)
         # Assumes you have a script like "type-check": "tsc --noEmit"
